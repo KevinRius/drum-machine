@@ -3,24 +3,47 @@ import {Container, Row, Button} from 'reactstrap';
 
 class App extends Component {
   state = {
-    power: true
+    power: 'on',
+    powercol: 'success',
+    display: 'sound',
+  }
+
+  handlePower = () => {
+    if (this.state.power === 'on') {
+      this.setState({power: 'off', powercol: 'dark'})
+    } else {
+      this.setState({power: 'on', powercol: 'success'})
+    }
   }
   handleKeyPress = (e) => {
    let audio = document.getElementById(String.toUpperCase(e.key));
-   if (audio !== null) {
-   audio.play();
+   if (audio !== null && this.state.power === 'on') {
+    audio.play();
+    this.setState({display: audio.src});
+    audio.parentNode.focus();
+    console.log(audio.parentElement.className)
    }
   }
   handleClick = (e) => {
     let audio = document.getElementById(e.target.innerText);
-    console.log(audio);
-    audio.play();
+    if (this.state.power === 'on') {
+      audio.play();
+      this.setState({display: audio.src});
+      audio.parentNode.focus();
+    }
   }
+  componentDidMount() {
+    document.addEventListener('keypress', this.handleKeyPress);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('keypress', this.handleKeyPress);
+  }
+
   render() {
     return (
-      <Container className="App vh-100" onKeyPress={this.handleKeyPress} id="drum-machine">
+      <Container className="App vh-100" id="drum-machine">
         <Row className="w-100 h-100">
-          <div id="display" className="col align-self-center">
+          <div className="drum col align-self-center">
               <Button color="primary" className="drum-pad col-3 m-2" id="drum-q" onClick={this.handleClick}>Q
                 <audio className="clip" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3" id="Q"></audio>
               </Button>
@@ -50,9 +73,8 @@ class App extends Component {
               </Button>
           </div>
           <div id="machine" className="col align-self-center">
-            <Button color="dark" className="col-12 mb-4">Power</Button>
-            <Button color="primary" className="col-12 mb-4">Sound</Button>
-            <Button color="primary" className="col-12">Type</Button>
+            <Button color={this.state.powercol} className="col-12 mb-4" onClick={this.handlePower}>Power {this.state.power}</Button>
+            <Button color="primary" className="col-12 mb-4" id="display">{this.state.display}</Button>
           </div>
           
         </Row>
